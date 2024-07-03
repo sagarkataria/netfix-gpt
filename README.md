@@ -8,6 +8,7 @@
 - Login/Sign Up
   - Sign in / Sing up form
   - Redirect to Brows Page
+  - for form validation use library "formik"
 - Browse (After authentication)
   - Header
   - Main Movie
