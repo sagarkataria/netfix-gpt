@@ -8,6 +8,11 @@
   - sign up form
   - form validation
   - useRef hook
+  - firebase setup
+  - Deploye our app to production
+  - Create sign up user account 
+  - Implement sign in user api
+  - create redux store with userslice
 - Install firebase for authentication and deploye our app on firbase 
    - install firebase (npm install firebase)
    - run a command `fiebase login`

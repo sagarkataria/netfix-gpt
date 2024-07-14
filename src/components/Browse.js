@@ -1,8 +1,11 @@
-
+import Header from "./Header.js"
 
 const Browse = () => {
   return (
-    <div>Browse</div>
+    <div className="flex justify-content-between">
+      <Header/>
+     
+    </div>
   )
 }
 

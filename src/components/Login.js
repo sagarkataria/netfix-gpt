@@ -1,16 +1,24 @@
 import { useRef, useState } from "react"
 import Header from "./Header"
 import { chackValidData } from "../utils/validate";
-import { createUserWithEmailAndPassword ,signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/firebase.js";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice.js";
 
 const Login = () => {
     const [isSignInForm, setIsSignInForm] = useState(true)
     const [errorMessage, setErrorMessage] = useState(null)
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate()
+
     const togleSignInForm = () => {
         setIsSignInForm(!isSignInForm)
     };
     const email = useRef(null);
+    const name = useRef(null);
     const password = useRef(null);
     const handleClickButton = () => {
         const message = chackValidData(email.current.value, password.current.value);
@@ -21,14 +29,25 @@ const Login = () => {
 
         if (!isSignInForm) {
             // sin up logic here
-            console.log('first ', auth)
-            console.log('first ', email)
-            console.log('first ', password)
+
             createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
                 .then((userCredential) => {
                     // Signed up 
                     const user = userCredential.user;
-                    console.log(user)
+                    updateProfile(user, {
+                        displayName: name.current.value,
+                        photoURL: "https://avatars.githubusercontent.com/u/70437136?v=4"
+                    }).then(() => {
+                        const { uid, email, displayName, photoURL } = auth.currentUser;
+                        dispatch(addUser({ uid: uid, email: email, displayName: displayName, photoURL: photoURL }));
+                        navigate("/browse")
+                    }).catch((error) => {
+                        setErrorMessage(error.message)
+                    });
+
+
+
+                    navigate("/browser")
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -45,6 +64,7 @@ const Login = () => {
                     // Signed in 
                     const user = userCredential.user;
                     console.log(user)
+                    navigate("/browse")
                     // ...
                 })
                 .catch((error) => {
@@ -62,9 +82,9 @@ const Login = () => {
             </div>
             <form action="" className="p-8 absolute bg-black w-3/12 my-2 bg-opacity-80" style={{ top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }} onSubmit={(e) => e.preventDefault()}>
                 <h1 className="text-white  p-6  text-6xl">{isSignInForm ? "Sign In" : "Sign Up"}</h1>
-                {!isSignInForm && (<input type="text" placeholder="Name" className="p-6  my-7 block w-full text-3xl bg-gray-700 text-gray" />)}
-                <input type="text" ref={email} placeholder="Email" className="p-6  my-10 block w-full text-3xl bg-gray-700 text-gray" />
-                <input ref={(password)} type="password" placeholder="Password" className="p-6  block w-full my-10 text-4xl bg-gray-700" />
+                {!isSignInForm && (<input type="text" ref={name} placeholder="Name" className="p-6  my-7 block w-full text-3xl bg-gray-700 text-gray text-white" />)}
+                <input type="text" ref={email} placeholder="Email" className="p-6  my-10 block w-full text-3xl bg-gray-700 text-gray text-white" />
+                <input ref={(password)} type="password" placeholder="Password" className="p-6  block w-full my-10 text-4xl bg-gray-700 text-white" />
                 <p className="p-3 m-3 text-red-500 font-bold text-4xl">{errorMessage}</p>
                 <button className="p-4 my-6 text-white text-4xl bg-red-700 rounded-lg w-full" onClick={handleClickButton}>{isSignInForm ? "Sign In" : "Sign Up"}</button>
                 <p className="p-4 text-white text-4xl " ><span className="text-bold cursor-pointer" onClick={togleSignInForm}>{isSignInForm ? "New to Netflix ? sign up now" : "Already Registered Sign in now"}</span></p>
